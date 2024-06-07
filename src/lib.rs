@@ -1,44 +1,67 @@
-//! Demonstrates using a custom extension to the `StandardMaterial` to modify the results of the builtin pbr shader.
+#![warn(missing_docs)]
+//! Provides a plane cut extended material for bevy.
 
 use bevy::{
+    app::{App, Plugin},
+    asset::{embedded_asset, Asset},
+    math::Vec4,
+    pbr::{
+        ExtendedMaterial, MaterialExtension, MaterialExtensionKey, MaterialExtensionPipeline,
+        MaterialPlugin, StandardMaterial,
+    },
     reflect::Reflect,
+    render::{
+        color::Color,
+        mesh::InnerMeshVertexBufferLayout,
+        render_asset::RenderAssets,
+        render_resource::{
+            AsBindGroup, AsBindGroupShaderType, RenderPipelineDescriptor, ShaderRef, ShaderType,
+            SpecializedMeshPipelineError,
+        },
+        texture::Image,
+    },
     utils::Hashed,
-    asset::embedded_asset,
-    pbr::{ExtendedMaterial, MaterialExtension, MaterialExtensionPipeline, MaterialExtensionKey},
-    prelude::*,
-    render::{mesh::InnerMeshVertexBufferLayout, render_resource::*, render_asset::RenderAssets},
 };
 
-pub struct PlaneCutPlugin;
+/// Type alias for `ExtendedMaterial<StandardMaterial, PlaneCutExt>`.
 pub type PlaneCutMaterial = ExtendedMaterial<StandardMaterial, PlaneCutExt>;
 
-impl Plugin for PlaneCutPlugin {
+/// The plane cut plugin.
+pub struct PlaneCutPlugin;
 
+impl Plugin for PlaneCutPlugin {
     fn build(&self, app: &mut App) {
         embedded_asset!(app, "plane_cut.wgsl");
-        app
-        .add_plugins(MaterialPlugin::<
-            ExtendedMaterial<StandardMaterial, PlaneCutExt>,
-        >::default());
+        app.add_plugins(MaterialPlugin::<PlaneCutMaterial>::default());
     }
 }
+
+/// Define what space to test the plane cut in: world space (default) or screen space.
+///
+/// TODO: Consider adding object/model space as an option.
 #[derive(Default, Reflect, Debug, Clone)]
 pub enum Space {
+    /// Run plane cut in world space (default).
     #[default]
     World,
+    /// Run plane cut in screen space. This turns the plane into more of a line cut.
     Screen,
     //Model
 }
 
+/// The plane cut extension.
 #[derive(Asset, AsBindGroup, Reflect, Debug, Clone)]
-
 #[uniform(100, PlaneCutExtUniform)]
 pub struct PlaneCutExt {
-    // We need to ensure that the bindings of the base material and the extension do not conflict,
-    // so we start from binding slot 100, leaving slots 0-99 for the base material.
+    /// The plane is defined with a normal vector _n_ and displacment scalar
+    /// _w_, represented with a vector _(nx, ny, nz, w)_. Its equation is _n .
+    /// position = w_. The portion that is cut is _n . position < w_.
     pub plane: Vec4,
+    /// Define the color of the cut.
     pub color: Color,
+    /// Define the space the plane is tested in.
     pub space: Space,
+    /// Is the cut shaded or unlit?
     pub shaded: bool,
 }
 
@@ -55,10 +78,10 @@ impl Default for PlaneCutExt {
 
 /// The GPU representation of the uniform data of a [`PlaneCutExt`].
 #[derive(Clone, Default, ShaderType)]
-pub struct PlaneCutExtUniform {
-    pub plane: Vec4,
-    pub color: Vec4,
-    pub flags: u32,
+struct PlaneCutExtUniform {
+    plane: Vec4,
+    color: Vec4,
+    flags: u32,
 }
 
 impl AsBindGroupShaderType<PlaneCutExtUniform> for PlaneCutExt {
@@ -74,7 +97,7 @@ impl AsBindGroupShaderType<PlaneCutExtUniform> for PlaneCutExt {
             plane: self.plane,
 
             color: self.color.as_linear_rgba_f32().into(),
-            flags
+            flags,
         }
     }
 }
@@ -88,13 +111,13 @@ impl MaterialExtension for PlaneCutExt {
         "embedded://bevy_plane_cut/plane_cut.wgsl".into()
     }
 
-    fn specialize(_pipeline: &MaterialExtensionPipeline,
+    fn specialize(
+        _pipeline: &MaterialExtensionPipeline,
         descriptor: &mut RenderPipelineDescriptor,
         _layout: &Hashed<InnerMeshVertexBufferLayout>,
-        _key: MaterialExtensionKey<Self>
+        _key: MaterialExtensionKey<Self>,
     ) -> Result<(), SpecializedMeshPipelineError> {
         descriptor.primitive.cull_mode = None;
         Ok(())
     }
-
 }

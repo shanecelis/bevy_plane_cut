@@ -40,18 +40,19 @@ fn fragment(
     var in = in_;
 
     let shaded = (plane_cut_ext.flags & PLANE_CUT_FLAGS_SHADED_BIT) != 0u;
-    if !is_front && shaded {
-            // The in.world_position is not actually correct, but I don't see any difference visually.
-            in.world_normal = -plane_cut_ext.plane.xyz;
+    if (!is_front && shaded) {
+        // The in.world_position is not actually correct, but I don't see any
+        // difference visually.
+        in.world_normal = -plane_cut_ext.plane.xyz;
     }
-    // generate a PbrInput struct from the StandardMaterial bindings
+    // Generate a PbrInput struct from the StandardMaterial bindings
     var pbr_input = pbr_input_from_standard_material(in, is_front);
 
-    if !is_front && shaded {
-            pbr_input.material.base_color = plane_cut_ext.color;
+    if (!is_front && shaded) {
+        pbr_input.material.base_color = plane_cut_ext.color;
     }
 
-    // alpha discard
+    // Alpha discard
     pbr_input.material.base_color = alpha_discard(pbr_input.material, pbr_input.material.base_color);
 
     if ((plane_cut_ext.flags & PLANE_CUT_FLAGS_SCREENSPACE_BIT) != 0u) {
@@ -65,17 +66,18 @@ fn fragment(
             discard;
         }
     }
+    // Object space
+    // XXX: Might have to do object space in the vertex shader.
 
 #ifdef PREPASS_PIPELINE
-    // in deferred mode we can't modify anything after that, as lighting is run in a separate fullscreen shader.
+    // In deferred mode we can't modify anything after that, as lighting is run
+    // in a separate fullscreen shader.
     let out = deferred_output(in, pbr_input);
 #else
     var out: FragmentOutput;
-    // apply lighting
+    // Apply lighting
     out.color = apply_pbr_lighting(pbr_input);
 
-    // Object space
-    // XXX: Might have to do object space in the vertex shader.
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
     if (!shaded && !is_front) {
         out.color = plane_cut_ext.color;

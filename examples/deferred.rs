@@ -1,16 +1,15 @@
-//! Deferred doesn't render anything. Bug?
-
-use bevy::{
-    pbr::{OpaqueRendererMethod},
-    prelude::*,
-    core_pipeline::prepass::DeferredPrepass,
-};
+//! Demonstrates a sphere using the deferred renderer.
+//!
+//! This one looks weird. But I'm not sure why. Did I not setup the prepass
+//! correctly?
+use bevy::{core_pipeline::prepass::DeferredPrepass, pbr::OpaqueRendererMethod, prelude::*};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, setup)
         .add_systems(Update, rotate_things)
+        .insert_resource(Msaa::Off)
         .run();
 }
 
@@ -19,22 +18,20 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let handle = materials.add(
-            StandardMaterial {
-                base_color: Color::RED,
-                // Can be used in forward or deferred mode.
-                opaque_render_method: OpaqueRendererMethod::Forward,
-                // In deferred mode, only the PbrInput can be modified (uvs,
-                // color and other material properties). In forward mode, the
-                // output can also be modified after lighting is applied. See
-                // the fragment shader `extended_material.wgsl` for more info.
-                // Note: to run in deferred mode, you must also add a
-                // `DeferredPrepass` component to the camera and either change
-                // the above to `OpaqueRendererMethod::Deferred` or add the
-                // `DefaultOpaqueRendererMethod` resource.
-                ..Default::default()
-            },
-    );
+    let handle = materials.add(StandardMaterial {
+        base_color: Color::RED,
+        // Can be used in forward or deferred mode.
+        opaque_render_method: OpaqueRendererMethod::Deferred,
+        // In deferred mode, only the PbrInput can be modified (uvs,
+        // color and other material properties). In forward mode, the
+        // output can also be modified after lighting is applied. See
+        // the fragment shader `extended_material.wgsl` for more info.
+        // Note: to run in deferred mode, you must also add a
+        // `DeferredPrepass` component to the camera and either change
+        // the above to `OpaqueRendererMethod::Deferred` or add the
+        // `DefaultOpaqueRendererMethod` resource.
+        ..Default::default()
+    });
     // sphere
     commands.spawn(MaterialMeshBundle {
         mesh: meshes.add(Sphere::new(1.0)),
@@ -53,10 +50,13 @@ fn setup(
     ));
 
     // camera
-    commands.spawn((Camera3dBundle {
-        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    }, DeferredPrepass));
+    commands.spawn((
+        Camera3dBundle {
+            transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            ..default()
+        },
+        DeferredPrepass,
+    ));
 }
 
 #[derive(Component)]
