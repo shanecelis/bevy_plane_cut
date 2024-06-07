@@ -14,7 +14,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(PlaneCutPlugin)
         .add_systems(Startup, setup)
-        .add_systems(Update, rotate_things)
+        .add_systems(Update, (rotate_things, translate_things, update_plane))
         .run();
 }
 
@@ -49,6 +49,18 @@ fn setup(
             //                          space: Space::Screen,
             },
     });
+    commands.spawn((
+        TransformBundle {
+            local: Transform {
+                rotation: Quat::from_rotation_z(PI/3.0),
+                ..default()
+            },
+            ..default()
+        },
+        Plane(handle.clone()),
+        // Rotate(Vec3::new(1.0, 1.0, 0.0))
+        Translate(Vec3::new(2.0, 0.0, 0.0))
+    ));
     // sphere
     commands.spawn(MaterialMeshBundle {
         mesh: meshes.add(Sphere::new(1.0)),
@@ -73,11 +85,31 @@ fn setup(
     });
 }
 
+fn update_plane(q: Query<(&GlobalTransform, &Plane)>,
+                mut materials: ResMut<Assets<PlaneCutMaterial>>) {
+    for (t, p) in &q {
+        let Some(m) = materials.get_mut(&p.0) else { continue; };
+        trace!("Updating plane");
+        let normal = t.left();
+        let w = normal.dot(t.translation());
+        m.extension.plane = (normal, w).into();
+    }
+}
+
+#[derive(Component)]
+struct Translate(Vec3);
+
 #[derive(Component)]
 struct Rotate(Vec3);
 
 fn rotate_things(mut q: Query<(&mut Transform, &Rotate)>, time: Res<Time>) {
     for (mut t, r) in &mut q {
         t.rotate_axis(r.0, time.delta_seconds());
+    }
+}
+
+fn translate_things(mut q: Query<(&mut Transform, &Translate)>, time: Res<Time>) {
+    for (mut t, r) in &mut q {
+        t.translation = (time.elapsed_seconds() / 1.0).sin().abs() * r.0;
     }
 }

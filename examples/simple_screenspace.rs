@@ -7,7 +7,6 @@ use bevy::{
 };
 
 use bevy_plane_cut::{PlaneCutPlugin, PlaneCutExt, Space, PlaneCutMaterial};
-use std::f32::consts::PI;
 
 fn main() {
     App::new()
@@ -17,9 +16,6 @@ fn main() {
         .add_systems(Update, rotate_things)
         .run();
 }
-
-#[derive(Component)]
-struct Plane(Handle<PlaneCutMaterial>);
 
 fn setup(
     mut commands: Commands,
@@ -38,15 +34,10 @@ fn setup(
                 // change the above to `OpaqueRendererMethod::Deferred` or add the `DefaultOpaqueRendererMethod` resource.
                 ..Default::default()
             },
-            extension: PlaneCutExt { plane: Vec4::new(-1.0, 1.0, -2.0, 0.0),
+            extension: PlaneCutExt { plane: Vec4::new(0.0, 1.0, 0.0, 500.0),
                                      color: Color::rgb_linear(0.0, 0.0, 0.7),
-                                     // color: Color::rgb_linear(1.0, 0.0, 1.0),
-                                     shaded: true,
-                                     space: Space::World,
-            // extension: PlaneCutExt { plane: Vec4::new(-0.2, 1.0, 0.0, 600.0),
-            //                          color: Color::rgb_linear(0.0, 0.0, 0.7),
-            //                          shaded: false,
-            //                          space: Space::Screen,
+                                     shaded: false,
+                                     space: Space::Screen,
             },
     });
     // sphere
