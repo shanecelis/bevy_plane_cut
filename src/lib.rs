@@ -4,9 +4,9 @@ use bevy::{
     reflect::Reflect,
     utils::Hashed,
     asset::embedded_asset,
-    pbr::{ExtendedMaterial, MaterialExtension, OpaqueRendererMethod, MaterialExtensionPipeline, MaterialExtensionKey},
+    pbr::{ExtendedMaterial, MaterialExtension, MaterialExtensionPipeline, MaterialExtensionKey},
     prelude::*,
-    render::{mesh::InnerMeshVertexBufferLayout, render_resource::*, render_asset::RenderAssets, texture::GpuImage},
+    render::{mesh::InnerMeshVertexBufferLayout, render_resource::*, render_asset::RenderAssets},
 };
 
 pub struct PlaneCutPlugin;
@@ -70,16 +70,11 @@ impl AsBindGroupShaderType<PlaneCutExtUniform> for PlaneCutExt {
         if self.shaded {
             flags |= 4;
         }
-        // if self.texture.is_some() {
-        //     flags |= ColorMaterialFlags::TEXTURE;
-        // }
-
         PlaneCutExtUniform {
             plane: self.plane,
 
             color: self.color.as_linear_rgba_f32().into(),
             flags
-            // flags: flags.bits(),
         }
     }
 }
@@ -93,10 +88,10 @@ impl MaterialExtension for PlaneCutExt {
         "embedded://bevy_plane_cut/plane_cut.wgsl".into()
     }
 
-    fn specialize(pipeline: &MaterialExtensionPipeline,
+    fn specialize(_pipeline: &MaterialExtensionPipeline,
         descriptor: &mut RenderPipelineDescriptor,
-        layout: &Hashed<InnerMeshVertexBufferLayout>,
-        key: MaterialExtensionKey<Self>
+        _layout: &Hashed<InnerMeshVertexBufferLayout>,
+        _key: MaterialExtensionKey<Self>
     ) -> Result<(), SpecializedMeshPipelineError> {
         descriptor.primitive.cull_mode = None;
         Ok(())

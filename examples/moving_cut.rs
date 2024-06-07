@@ -1,9 +1,8 @@
 //! Demonstrates using a custom extension to the `StandardMaterial` to modify the results of the builtin pbr shader.
 
 use bevy::{
-    pbr::{ExtendedMaterial, MaterialExtension, OpaqueRendererMethod},
+    pbr::{ExtendedMaterial, OpaqueRendererMethod},
     prelude::*,
-    render::render_resource::*,
 };
 
 use bevy_plane_cut::{PlaneCutPlugin, PlaneCutExt, Space, PlaneCutMaterial};
@@ -28,7 +27,7 @@ fn setup(
 ) {
     let handle = materials.add(ExtendedMaterial {
             base: StandardMaterial {
-                base_color: Color::RED.into(),
+                base_color: Color::RED,
                 // can be used in forward or deferred mode.
                 opaque_render_method: OpaqueRendererMethod::Auto,
                 // in deferred mode, only the PbrInput can be modified (uvs, color and other material properties),

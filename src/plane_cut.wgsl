@@ -54,14 +54,6 @@ fn fragment(
     // alpha discard
     pbr_input.material.base_color = alpha_discard(pbr_input.material, pbr_input.material.base_color);
 
-#ifdef PREPASS_PIPELINE
-    // in deferred mode we can't modify anything after that, as lighting is run in a separate fullscreen shader.
-    let out = deferred_output(in, pbr_input);
-#else
-    var out: FragmentOutput;
-    // apply lighting
-    out.color = apply_pbr_lighting(pbr_input);
-
     if ((plane_cut_ext.flags & PLANE_CUT_FLAGS_SCREENSPACE_BIT) != 0u) {
         // Screenspace
         if (dot(in.position.xyz, plane_cut_ext.plane.xyz) < plane_cut_ext.plane.w) {
@@ -73,6 +65,15 @@ fn fragment(
             discard;
         }
     }
+
+#ifdef PREPASS_PIPELINE
+    // in deferred mode we can't modify anything after that, as lighting is run in a separate fullscreen shader.
+    let out = deferred_output(in, pbr_input);
+#else
+    var out: FragmentOutput;
+    // apply lighting
+    out.color = apply_pbr_lighting(pbr_input);
+
     // Object space
     // XXX: Might have to do object space in the vertex shader.
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
