@@ -7,7 +7,7 @@
 Provides a plane cut extended material for the [bevy game
 engine](https://bevyengine.org).
 
-<!-- ![simple example]() -->
+![simple example](https://github.com/shanecelis/bevy_plane_cut/assets/54390/d220108d-a0c0-4da7-bb84-b5a3dc223463)
 
 # Install
 
