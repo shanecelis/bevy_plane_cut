@@ -11,13 +11,16 @@ engine](https://bevyengine.org).
 
 # Install
 
+Install the crate.
+
 ```sh
 cargo add bevy_plane_cut
 ```
 
 # Usage
 
-## Add plugin to app
+## Add Plugin to App
+
 ```rust,no_run
 use bevy::prelude::*;
 fn main() {
@@ -27,7 +30,7 @@ fn main() {
 }
 ```
 
-## Add material to object
+## Add Material to Object
 
 ```rust,compile
 use bevy::prelude::*;
@@ -70,14 +73,15 @@ This will show a red sphere with a light rotating around it and blue plane cut.
 
 * `simple` - A red sphere with a plane cut.
 * `simple_screenspace` - A red sphere with a plane cut in screen space.
-* `moving_cut` - The plane cut moves in and out.
+* `moving_cut` - A red sphere with a plane cut moving in and out.
 
 ## Not Working Examples
 
 * `simple_deferred` - same as simple but using deferred pipeline.
   NOTE: This one does not look right on my machine.
-* `deferred` - A red sphere rendered with deferred pipeline. 
-  Does not look right.
+* `deferred` - A red sphere rendered with deferred pipeline. Does not look
+  right. This has no plane cut at all. I'm using macOS, so I'd be curious if it
+  looks correct on other platforms.
 * `two_cuts` - This is a material that has been extended by `PlaneCutExt` twice.
   However, it has a bug. See `two_cuts.rs` example for more details. PRs welcome!
   
