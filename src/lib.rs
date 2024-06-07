@@ -62,7 +62,8 @@ pub struct PlaneCutExt {
     pub color: Color,
     /// Define the space the plane is tested in.
     pub space: Space,
-    /// Is the cut shaded or unlit?
+    /// Is the cut shaded or unlit? Note: using the deferred pipeline will
+    /// not respect an unlit option.
     pub shaded: bool,
 }
 

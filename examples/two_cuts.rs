@@ -17,7 +17,6 @@
 //!     In Device::create_bind_group_layout
 //!     Conflicting binding at index 100
 //!
-//!
 //! note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 //! ```
 

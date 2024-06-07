@@ -78,13 +78,18 @@ This will show a red sphere with a light rotating around it and blue plane cut.
 ## Not Working Examples
 
 * `simple_deferred` - same as simple but using deferred pipeline.
-  NOTE: This one does not look right on my machine.
+  NOTE: This one does not look right on my macOS machine.
 * `deferred` - A red sphere rendered with deferred pipeline. Does not look
   right. This has no plane cut at all. I'm using macOS, so I'd be curious if it
   looks correct on other platforms.
 * `two_cuts` - This is a material that has been extended by `PlaneCutExt` twice.
   However, it has a bug. See `two_cuts.rs` example for more details. PRs welcome!
-  
+
+# Compatibility
+
+| bevy-input-sequence | bevy |
+|---------------------|------|
+| 0.1                 | 0.13 |
 
 # License
 
