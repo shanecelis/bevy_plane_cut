@@ -1,4 +1,4 @@
-//! Demonstrates using a custom extension to the `StandardMaterial` to modify the results of the builtin pbr shader.
+//! Demonstrates a plane cut on a sphere as simply as possible.
 
 use bevy::{
     pbr::{ExtendedMaterial, OpaqueRendererMethod},
@@ -21,34 +21,24 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<PlaneCutMaterial>>,
 ) {
-    let handle = materials.add(ExtendedMaterial {
-        base: StandardMaterial {
-            base_color: Color::RED,
-            // Can only be used in forward currently. Submit PR to support
-            // deferred mode.
-            opaque_render_method: OpaqueRendererMethod::Deferred,
-            // In deferred mode, only the PbrInput can be modified (uvs,
-            // color and other material properties), in forward mode, the
-            // output can also be modified after lighting is applied. see
-            // the fragment shader `extended_material.wgsl` for more info.
-            // Note: to run in deferred mode, you must also add a
-            // `DeferredPrepass` component to the camera and either change
-            // the above to `OpaqueRendererMethod::Deferred` or add the
-            // `DefaultOpaqueRendererMethod` resource.
-            ..Default::default()
-        },
-        extension: PlaneCutExt {
-            plane: Vec4::new(-1.0, 1.0, -2.0, 0.0),
-            color: Color::rgb_linear(0.0, 0.0, 0.7),
-            shaded: true,
-            space: Space::World,
-        },
-    });
     // sphere
     commands.spawn(MaterialMeshBundle {
         mesh: meshes.add(Sphere::new(1.0)),
         transform: Transform::from_xyz(0.0, 0.5, 0.0),
-        material: handle,
+        material: materials.add(ExtendedMaterial {
+            base: StandardMaterial {
+                base_color: Color::RED,
+                // Let's use the forward renderer.
+                opaque_render_method: OpaqueRendererMethod::Forward,
+                ..default()
+            },
+            extension: PlaneCutExt {
+                plane: Vec4::new(-1.0, 1.0, -2.0, 0.0),
+                color: Color::rgb_linear(0.0, 0.0, 0.7),
+                shaded: true,
+                space: Space::World,
+            },
+        }),
         ..default()
     });
 

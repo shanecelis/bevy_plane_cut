@@ -1,5 +1,6 @@
+#![doc(html_root_url = "https://docs.rs/bevy_terminal_shader/0.1.0")]
+#![doc = include_str!("../README.md")]
 #![warn(missing_docs)]
-//! Provides a plane cut extended material for bevy.
 
 use bevy::{
     app::{App, Plugin},
