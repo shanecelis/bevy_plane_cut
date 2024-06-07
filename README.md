@@ -76,6 +76,8 @@ This will show a red sphere with a light rotating around it and blue plane cut.
 
 ## Not Working Examples
 
+![simple_deferred](https://github.com/shanecelis/bevy_plane_cut/assets/54390/0b2fa6f5-6202-4301-b502-8fa37ae74c3f)
+
 * `simple_deferred` - same as simple but using deferred renderer.
   NOTE: This one does not look right on my macOS machine.
 * `deferred` - A red sphere rendered with deferred renderer. This has no plane
