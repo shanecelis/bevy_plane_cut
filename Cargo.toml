@@ -2,6 +2,23 @@
 name = "bevy_plane_cut"
 version = "0.1.0"
 edition = "2021"
+description = "A plane cut material for bevy"
+authors = ["Shane Celis <shane.celis@gmail.com>"]
+keywords = [
+    "gamedev",
+    "bevy",
+    "shader",
+    "graphics",
+]
+categories = [
+    "game-engines",
+]
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/shanecelis/bevy_plane_cut"
 
 [dependencies]
 bevy = "0.13.2"
+
+[dev-dependencies]
+version-sync = "0.9.5"

@@ -1,6 +1,6 @@
-#![doc(html_root_url = "https://docs.rs/bevy_terminal_shader/0.1.0")]
+#![doc(html_root_url = "https://docs.rs/bevy_plane_cut/0.1.0")]
 #![doc = include_str!("../README.md")]
-#![warn(missing_docs)]
+#![forbid(missing_docs)]
 
 use bevy::{
     app::{App, Plugin},
@@ -62,8 +62,8 @@ pub struct PlaneCutExt {
     pub color: Color,
     /// Define the space the plane is tested in.
     pub space: Space,
-    /// Is the cut shaded or unlit? Note: using the deferred pipeline will
-    /// not respect an unlit option.
+    /// Is the cut shaded or unlit? Shaded is the default. Note: using the
+    /// deferred renderer will not respect an unlit option.
     pub shaded: bool,
 }
 

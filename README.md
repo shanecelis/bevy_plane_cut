@@ -4,8 +4,7 @@
   [![crates-io](https://img.shields.io/crates/v/bevy_plane_cut.svg)](https://crates.io/crates/bevy_plane_cut)
   [![api-docs](https://docs.rs/bevy_plane_cut/badge.svg)](https://docs.rs/bevy_plane_cut)
 
-Provides a plane cut extended material for the [bevy game
-engine](https://bevyengine.org).
+A plane cut material for the [bevy game engine](https://bevyengine.org).
 
 ![simple example](https://github.com/shanecelis/bevy_plane_cut/assets/54390/d220108d-a0c0-4da7-bb84-b5a3dc223463)
 
@@ -77,11 +76,11 @@ This will show a red sphere with a light rotating around it and blue plane cut.
 
 ## Not Working Examples
 
-* `simple_deferred` - same as simple but using deferred pipeline.
+* `simple_deferred` - same as simple but using deferred renderer.
   NOTE: This one does not look right on my macOS machine.
-* `deferred` - A red sphere rendered with deferred pipeline. Does not look
-  right. This has no plane cut at all. I'm using macOS, so I'd be curious if it
-  looks correct on other platforms.
+* `deferred` - A red sphere rendered with deferred renderer. This has no plane
+  cut at all and it still does not look right. I'm using macOS, so I'd be
+  curious if it looks correct on other platforms.
 * `two_cuts` - This is a material that has been extended by `PlaneCutExt` twice.
   However, it has a bug. See `two_cuts.rs` example for more details. PRs welcome!
 
@@ -94,7 +93,7 @@ This will show a red sphere with a light rotating around it and blue plane cut.
 # License
 
 This crate is licensed under the MIT License or the Apache License 2.0. The
-examples are licensed under the CC-0 license.
+examples are licensed under the CC0 license.
 
 # Acknowlegments
 
