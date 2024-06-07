@@ -1,6 +1,7 @@
 #import bevy_pbr::{
     pbr_fragment::pbr_input_from_standard_material,
     pbr_functions::alpha_discard,
+        // mesh::vertex,
 }
 
 #ifdef PREPASS_PIPELINE
@@ -15,23 +16,40 @@
 }
 #endif
 
-struct MyExtendedMaterial {
-    quantize_steps: u32,
+struct PlaneCutExt {
+    plane: vec4<f32>,
+    color: vec4<f32>,
+    flags: u32
 }
+const PLANE_CUT_FLAGS_SCREENSPACE_BIT: u32 = 1u;
+const PLANE_CUT_FLAGS_SHADED_BIT: u32 = 4u;
 
 @group(2) @binding(100)
-var<uniform> my_extended_material: MyExtendedMaterial;
+var<uniform> plane_cut_ext: PlaneCutExt;
+
+// @vertex
+// fn my_vertex(vertex_no_morph: Vertex) -> VertexOutput {
+//     return vertex(vertex_no_morph);
+// }
 
 @fragment
 fn fragment(
-    in: VertexOutput,
+    in_: VertexOutput,
     @builtin(front_facing) is_front: bool,
 ) -> FragmentOutput {
+    var in = in_;
+
+    let shaded = (plane_cut_ext.flags & PLANE_CUT_FLAGS_SHADED_BIT) != 0u;
+    if !is_front && shaded {
+            // The in.world_position is not actually correct, but I don't see any difference visually.
+            in.world_normal = -plane_cut_ext.plane.xyz;
+    }
     // generate a PbrInput struct from the StandardMaterial bindings
     var pbr_input = pbr_input_from_standard_material(in, is_front);
 
-    // we can optionally modify the input before lighting and alpha_discard is applied
-    pbr_input.material.base_color.b = pbr_input.material.base_color.r;
+    if !is_front && shaded {
+            pbr_input.material.base_color = plane_cut_ext.color;
+    }
 
     // alpha discard
     pbr_input.material.base_color = alpha_discard(pbr_input.material, pbr_input.material.base_color);
@@ -44,15 +62,23 @@ fn fragment(
     // apply lighting
     out.color = apply_pbr_lighting(pbr_input);
 
-    // we can optionally modify the lit color before post-processing is applied
-    out.color = vec4<f32>(vec4<u32>(out.color * f32(my_extended_material.quantize_steps))) / f32(my_extended_material.quantize_steps);
-
-    // apply in-shader post processing (fog, alpha-premultiply, and also tonemapping, debanding if the camera is non-hdr)
-    // note this does not include fullscreen postprocessing effects like bloom.
+    if ((plane_cut_ext.flags & PLANE_CUT_FLAGS_SCREENSPACE_BIT) != 0u) {
+        // Screenspace
+        if (dot(in.position.xyz, plane_cut_ext.plane.xyz) < plane_cut_ext.plane.w) {
+            discard;
+        }
+    } else {
+        // World space
+        if (dot(in.world_position.xyz, plane_cut_ext.plane.xyz) < plane_cut_ext.plane.w) {
+            discard;
+        }
+    }
+    // Object space
+    // XXX: Might have to do object space in the vertex shader.
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
-
-    // we can optionally modify the final result here
-    out.color = out.color * 2.0;
+    if (!shaded && !is_front) {
+        out.color = plane_cut_ext.color;
+    }
 #endif
 
     return out;
