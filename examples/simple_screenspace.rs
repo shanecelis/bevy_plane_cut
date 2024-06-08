@@ -36,7 +36,7 @@ fn setup(
         },
         extension: PlaneCutExt {
             plane: Vec4::new(0.0, 1.0, 0.0, 500.0),
-            color: Color::rgb_linear(0.0, 0.0, 0.7),
+            color: Color::linear_rgb(0.0, 0.0, 0.7),
             shaded: false,
             space: Space::Screen,
         },

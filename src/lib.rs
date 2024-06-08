@@ -19,9 +19,8 @@ use bevy::{
             AsBindGroup, AsBindGroupShaderType, RenderPipelineDescriptor, ShaderRef, ShaderType,
             SpecializedMeshPipelineError,
         },
-        texture::{Image, GpuImage },
+        texture::{GpuImage },
     },
-    utils::Hashed,
 };
 
 /// Type alias for `ExtendedMaterial<StandardMaterial, PlaneCutExt>`.

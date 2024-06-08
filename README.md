@@ -25,15 +25,18 @@ use bevy::prelude::*;
 fn main() {
     App::new()
         .add_plugins(bevy_plane_cut::PlaneCutPlugin)
-        .run()
+        .run();
 }
 ```
 
 ## Add Material to Object
 
 ```rust,compile
-use bevy::prelude::*;
-use bevy::pbr::ExtendedMaterial;
+use bevy::{
+    prelude::*,
+    color::palettes::basic,
+    pbr::ExtendedMaterial,
+};
 use bevy_plane_cut::*;
 
 fn setup(
@@ -45,12 +48,12 @@ fn setup(
         mesh: meshes.add(Sphere::new(1.0)),
         material: materials.add(ExtendedMaterial {
             base: StandardMaterial {
-                base_color: Color::RED,
+                base_color: basic::RED.into(),
                 ..default()
             },
             extension: PlaneCutExt {
                 plane: Vec4::new(-1.0, 1.0, -2.0, 0.0),
-                color: Color::rgb_linear(0.0, 0.0, 0.7),
+                color: Color::linear_rgb(0.0, 0.0, 0.7),
                 shaded: true,
                 space: Space::World,
             },

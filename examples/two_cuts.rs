@@ -56,14 +56,14 @@ fn setup(
             },
             extension: PlaneCutExt {
                 plane: Vec4::new(-1.0, 1.0, -2.0, 0.0),
-                color: Color::rgb_linear(0.0, 0.7, 0.0),
+                color: Color::linear_rgb(0.0, 0.7, 0.0),
                 shaded: true,
                 space: Space::World,
             },
         },
         extension: PlaneCutExt {
             plane: Vec4::new(-1.0, 1.0, -2.0, 0.0),
-            color: Color::rgb_linear(0.0, 0.0, 0.7),
+            color: Color::linear_rgb(0.0, 0.0, 0.7),
             shaded: true,
             space: Space::World,
         },
