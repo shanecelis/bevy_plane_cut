@@ -100,3 +100,7 @@ examples are licensed under the CC0 license.
 # Acknowlegments
 
 * [Clipping a Model with a Plane](https://www.ronja-tutorials.com/post/021-plane-clipping/) by [Ronja](https://eldritch.cafe/@ronja) taught me the technique many years ago.
+
+* [Extending Materials in Bevy 0.12 with Material Extension](https://www.rustadventure.dev/extending-materials-in-bevy-0-12-with-materialextension) by [Chris Biscardi](https://hachyderm.io/@chrisbiscardi) showed off how cool `ExtendedMaterial` is.
+
+* Thanks to [robtfm](https://github.com/robtfm) who wrote the original [extended_material.rs](https://github.com/bevyengine/bevy/blob/release-0.13.2/examples/shader/extended_material.rs) example in bevy.
