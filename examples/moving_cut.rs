@@ -3,6 +3,7 @@
 use bevy::{
     pbr::{ExtendedMaterial, OpaqueRendererMethod},
     prelude::*,
+    color::palettes::basic,
 };
 
 use bevy_plane_cut::{PlaneCutExt, PlaneCutMaterial, PlaneCutPlugin, Space};
@@ -26,7 +27,7 @@ fn setup(
 ) {
     let handle = materials.add(ExtendedMaterial {
         base: StandardMaterial {
-            base_color: Color::RED,
+            base_color: basic::RED.into(),
             opaque_render_method: OpaqueRendererMethod::Forward,
             ..Default::default()
         },
@@ -60,7 +61,7 @@ fn setup(
             transform: Transform::from_xyz(1.0, 1.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         },
-        Rotate(Vec3::Y),
+        Rotate(Dir3::Y),
     ));
 
     // camera
@@ -81,7 +82,7 @@ fn update_plane(
         trace!("Updating plane");
         let normal = t.left();
         let w = normal.dot(t.translation());
-        m.extension.plane = (normal, w).into();
+        m.extension.plane = (*normal, w).into();
     }
 }
 
@@ -89,7 +90,7 @@ fn update_plane(
 struct Translate(Vec3);
 
 #[derive(Component)]
-struct Rotate(Vec3);
+struct Rotate(Dir3);
 
 fn rotate_things(mut q: Query<(&mut Transform, &Rotate)>, time: Res<Time>) {
     for (mut t, r) in &mut q {

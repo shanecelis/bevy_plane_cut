@@ -18,7 +18,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/shanecelis/bevy_plane_cut"
 
 [dependencies]
-bevy = "0.13"
+bevy = "0.14.0-rc.2"
 
 [dev-dependencies]
 version-sync = "0.9.5"

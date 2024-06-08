@@ -10,16 +10,16 @@ use bevy::{
         ExtendedMaterial, MaterialExtension, MaterialExtensionKey, MaterialExtensionPipeline,
         MaterialPlugin, StandardMaterial,
     },
+    color::{Color, LinearRgba},
     reflect::Reflect,
     render::{
-        color::Color,
-        mesh::InnerMeshVertexBufferLayout,
+        mesh::MeshVertexBufferLayoutRef,
         render_asset::RenderAssets,
         render_resource::{
             AsBindGroup, AsBindGroupShaderType, RenderPipelineDescriptor, ShaderRef, ShaderType,
             SpecializedMeshPipelineError,
         },
-        texture::Image,
+        texture::{Image, GpuImage },
     },
     utils::Hashed,
 };
@@ -87,7 +87,7 @@ struct PlaneCutExtUniform {
 }
 
 impl AsBindGroupShaderType<PlaneCutExtUniform> for PlaneCutExt {
-    fn as_bind_group_shader_type(&self, _images: &RenderAssets<Image>) -> PlaneCutExtUniform {
+    fn as_bind_group_shader_type(&self, _images: &RenderAssets<GpuImage>) -> PlaneCutExtUniform {
         let mut flags = 0;
         if matches!(self.space, Space::Screen) {
             flags |= 1;
@@ -98,7 +98,7 @@ impl AsBindGroupShaderType<PlaneCutExtUniform> for PlaneCutExt {
         PlaneCutExtUniform {
             plane: self.plane,
 
-            color: self.color.as_linear_rgba_f32().into(),
+            color: LinearRgba::from(self.color).to_f32_array().into(),
             flags,
         }
     }
@@ -116,7 +116,7 @@ impl MaterialExtension for PlaneCutExt {
     fn specialize(
         _pipeline: &MaterialExtensionPipeline,
         descriptor: &mut RenderPipelineDescriptor,
-        _layout: &Hashed<InnerMeshVertexBufferLayout>,
+        _layout: &MeshVertexBufferLayoutRef,
         _key: MaterialExtensionKey<Self>,
     ) -> Result<(), SpecializedMeshPipelineError> {
         descriptor.primitive.cull_mode = None;

@@ -3,6 +3,7 @@
 use bevy::{
     pbr::{ExtendedMaterial, OpaqueRendererMethod},
     prelude::*,
+    color::palettes::basic,
 };
 
 use bevy_plane_cut::{PlaneCutExt, PlaneCutMaterial, PlaneCutPlugin, Space};
@@ -27,7 +28,7 @@ fn setup(
         transform: Transform::from_xyz(0.0, 0.5, 0.0),
         material: materials.add(ExtendedMaterial {
             base: StandardMaterial {
-                base_color: Color::RED,
+                base_color: basic::RED.into(),
                 // Let's use the forward renderer.
                 opaque_render_method: OpaqueRendererMethod::Forward,
                 ..default()
@@ -48,7 +49,7 @@ fn setup(
             transform: Transform::from_xyz(1.0, 1.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         },
-        Rotate(Vec3::Y),
+        Rotate(Dir3::Y),
     ));
 
     // camera
@@ -59,7 +60,7 @@ fn setup(
 }
 
 #[derive(Component)]
-struct Rotate(Vec3);
+struct Rotate(Dir3);
 
 fn rotate_things(mut q: Query<(&mut Transform, &Rotate)>, time: Res<Time>) {
     for (mut t, r) in &mut q {
