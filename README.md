@@ -88,9 +88,9 @@ This will show a red sphere with a light rotating around it and blue plane cut.
 
 # Compatibility
 
-| bevy-input-sequence | bevy |
-|---------------------|------|
-| 0.1                 | 0.13 |
+| bevy_plane_cut | bevy |
+|----------------|------|
+| 0.1            | 0.13 |
 
 # License
 
