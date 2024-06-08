@@ -99,4 +99,4 @@ examples are licensed under the CC0 license.
 
 # Acknowlegments
 
-* [Clipping a Model with a Plane](https://www.ronja-tutorials.com/post/021-plane-clipping/) by [Ronja](https://eldritch.cafe/@ronja) that taught me the technique many years ago.
+* [Clipping a Model with a Plane](https://www.ronja-tutorials.com/post/021-plane-clipping/) by [Ronja](https://eldritch.cafe/@ronja) taught me the technique many years ago.
