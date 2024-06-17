@@ -10,7 +10,7 @@ use bevy::{
         ExtendedMaterial, MaterialExtension, MaterialExtensionKey, MaterialExtensionPipeline,
         MaterialPlugin, StandardMaterial,
     },
-    color::{Color, LinearRgba},
+    color::{Color, LinearRgba, ColorToComponents},
     reflect::Reflect,
     render::{
         mesh::MeshVertexBufferLayoutRef,
