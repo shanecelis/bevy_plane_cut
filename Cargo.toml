@@ -1,6 +1,6 @@
 [package]
 name = "bevy_plane_cut"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "A plane cut material for bevy"
 authors = ["Shane Celis <shane.celis@gmail.com>"]
