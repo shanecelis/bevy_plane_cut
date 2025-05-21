@@ -53,10 +53,17 @@ pub enum Space {
 #[derive(Asset, AsBindGroup, Reflect, Debug, Clone)]
 #[uniform(100, PlaneCutExtUniform)]
 pub struct PlaneCutExt {
-    /// The plane is defined with a normal vector _n_ and displacment scalar
+    /// The planes are defined with a normal vector _n_ and displacment scalar
     /// _w_, represented with a vector _(nx, ny, nz, w)_. Its equation is _n .
     /// position = w_. The portion that is cut is _n . position < w_.
-    pub plane: Vec4,
+    /// For a unit cube centered at the origin, the planes are:
+    /// - Right: normal (-1,0,0), w = -0.5 (cuts x > 0.5)
+    /// - Left: normal (1,0,0), w = -0.5 (cuts x < -0.5)
+    /// - Top: normal (0,-1,0), w = -0.5 (cuts y > 0.5)
+    /// - Bottom: normal (0,1,0), w = -0.5 (cuts y < -0.5)
+    /// - Front: normal (0,0,-1), w = -0.5 (cuts z > 0.5)
+    /// - Back: normal (0,0,1), w = -0.5 (cuts z < -0.5)
+    pub planes: [Vec4; 6],
     /// Define the color of the cut.
     pub color: Color,
     /// Define the space the plane is tested in.
@@ -69,7 +76,14 @@ pub struct PlaneCutExt {
 impl Default for PlaneCutExt {
     fn default() -> Self {
         Self {
-            plane: Vec4::new(1.0, 0.0, 0.0, 0.0),
+            planes: [
+                Vec4::new(-1.0, 0.0, 0.0, -0.5), // Cuts x > 0.5 (Right)
+                Vec4::new(1.0, 0.0, 0.0, -0.5),  // Cuts x < -0.5 (Left)
+                Vec4::new(0.0, -1.0, 0.0, -0.5), // Cuts y > 0.5 (Top)
+                Vec4::new(0.0, 1.0, 0.0, -0.5),  // Cuts y < -0.5 (Bottom)
+                Vec4::new(0.0, 0.0, -1.0, -0.5), // Cuts z > 0.5 (Front)
+                Vec4::new(0.0, 0.0, 1.0, -0.5),  // Cuts z < -0.5 (Back)
+            ],
             color: Color::BLACK,
             space: Space::default(),
             shaded: true,
@@ -80,7 +94,7 @@ impl Default for PlaneCutExt {
 /// The GPU representation of the uniform data of a [`PlaneCutExt`].
 #[derive(Clone, Default, ShaderType)]
 struct PlaneCutExtUniform {
-    plane: Vec4,
+    planes: [Vec4; 6],
     color: Vec4,
     flags: u32,
 }
@@ -95,7 +109,7 @@ impl AsBindGroupShaderType<PlaneCutExtUniform> for PlaneCutExt {
             flags |= 4;
         }
         PlaneCutExtUniform {
-            plane: self.plane,
+            planes: self.planes,
 
             color: LinearRgba::from(self.color).to_f32_array().into(),
             flags,

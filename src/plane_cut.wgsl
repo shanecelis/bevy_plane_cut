@@ -17,7 +17,7 @@
 #endif
 
 struct PlaneCutExt {
-    plane: vec4<f32>,
+    planes: array<vec4<f32>, 6>,
     color: vec4<f32>,
     flags: u32
 }
@@ -37,17 +37,21 @@ fn fragment(
     in_: VertexOutput,
     @builtin(front_facing) is_front: bool,
 ) -> FragmentOutput {
-    var in = in_;
+    var in = in_; // Make `in` mutable
 
     let shaded = (plane_cut_ext.flags & PLANE_CUT_FLAGS_SHADED_BIT) != 0u;
+
+    // Normal adjustment for back faces (pre-PBR input)
+    // If it's a back face and shaded, use the normal of the first plane.
+    // This is a simplification; a more robust solution would identify the specific cutting plane.
     if (!is_front && shaded) {
-        // The in.world_position is not actually correct, but I don't see any
-        // difference visually.
-        in.world_normal = -plane_cut_ext.plane.xyz;
+        in.world_normal = -plane_cut_ext.planes[0].xyz;
     }
+
     // Generate a PbrInput struct from the StandardMaterial bindings
     var pbr_input = pbr_input_from_standard_material(in, is_front);
 
+    // Set base color for back faces if shaded
     if (!is_front && shaded) {
         pbr_input.material.base_color = plane_cut_ext.color;
     }
@@ -55,15 +59,19 @@ fn fragment(
     // Alpha discard
     pbr_input.material.base_color = alpha_discard(pbr_input.material, pbr_input.material.base_color);
 
-    if ((plane_cut_ext.flags & PLANE_CUT_FLAGS_SCREENSPACE_BIT) != 0u) {
-        // Screenspace
-        if (dot(in.position.xyz, plane_cut_ext.plane.xyz) < plane_cut_ext.plane.w) {
-            discard;
-        }
-    } else {
-        // World space
-        if (dot(in.world_position.xyz, plane_cut_ext.plane.xyz) < plane_cut_ext.plane.w) {
-            discard;
+    // Plane culling loop
+    for (var i = 0u; i < 6u; i = i + 1u) {
+        let plane = plane_cut_ext.planes[i];
+        if ((plane_cut_ext.flags & PLANE_CUT_FLAGS_SCREENSPACE_BIT) != 0u) {
+            // Screenspace
+            if (dot(in.position.xyz, plane.xyz) < plane.w) {
+                discard;
+            }
+        } else {
+            // World space
+            if (dot(in.world_position.xyz, plane.xyz) < plane.w) {
+                discard;
+            }
         }
     }
     // Object space
