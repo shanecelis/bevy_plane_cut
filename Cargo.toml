@@ -1,6 +1,6 @@
 [package]
 name = "bevy_plane_cut"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 description = "A plane cut material for bevy"
 authors = ["Shane Celis <shane.celis@gmail.com>"]
@@ -18,7 +18,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/shanecelis/bevy_plane_cut"
 
 [dependencies]
-bevy = "0.14"
+bevy = "0.16.1"
 
 [dev-dependencies]
 version-sync = "0.9.5"
