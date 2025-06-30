@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/bevy_plane_cut/0.2.0")]
+#![doc(html_root_url = "https://docs.rs/bevy_plane_cut/0.3.0")]
 #![doc = include_str!("../README.md")]
 #![forbid(missing_docs)]
 
@@ -32,6 +32,7 @@ pub struct PlaneCutPlugin;
 impl Plugin for PlaneCutPlugin {
     fn build(&self, app: &mut App) {
         embedded_asset!(app, "plane_cut.wgsl");
+        embedded_asset!(app, "double_plane_cut.wgsl");
         app.add_plugins(MaterialPlugin::<PlaneCutMaterial>::default());
     }
 }
@@ -96,7 +97,6 @@ impl AsBindGroupShaderType<PlaneCutExtUniform> for PlaneCutExt {
         }
         PlaneCutExtUniform {
             plane: self.plane,
-
             color: LinearRgba::from(self.color).to_f32_array().into(),
             flags,
         }

@@ -93,6 +93,7 @@ This will show a red sphere with a light rotating around it and blue plane cut.
 
 | bevy_plane_cut | bevy |
 |----------------|------|
+| 0.3            | 0.16 |
 | 0.2            | 0.14 |
 | 0.1            | 0.13 |
 
