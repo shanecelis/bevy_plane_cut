@@ -71,7 +71,9 @@ fn fragment(
     let view_ray = normalize(in.world_position.xyz - view.world_position);
     for (var i: u32 = 0u; i < plane_cut_ext.count; i++) {
         if dot(position, plane_cut_ext.plane[i].xyz) < plane_cut_ext.plane[i].w {
-            discard;
+            // if is_front {
+                discard;
+            // }
         }
         // Make sure the view ray and the plane are anti-collinear
         if dot(view_ray, plane_cut_ext.plane[i].xyz) > 0 {
