@@ -1,9 +1,5 @@
-#![doc(html_root_url = "https://docs.rs/bevy_plane_cut/0.3.0")]
-#![doc = include_str!("../README.md")]
-#![forbid(missing_docs)]
-
 use bevy::{
-    app::{App, Plugin},
+    app::{App},
     asset::{embedded_asset, Asset},
     math::Vec4,
     pbr::{
@@ -22,48 +18,31 @@ use bevy::{
         texture::{GpuImage },
     },
 };
+use super::*;
 
-/// Multiple plane cuts
-pub mod nplane;
+/// The maximum number of plane cuts.
+pub const PLANE_MAX: usize = 6;
 
-/// Type alias for `ExtendedMaterial<StandardMaterial, PlaneCutExt>`.
-pub type PlaneCutMaterial = ExtendedMaterial<StandardMaterial, PlaneCutExt>;
-
-/// The plane cut plugin.
-pub struct PlaneCutPlugin;
-
-impl Plugin for PlaneCutPlugin {
-    fn build(&self, app: &mut App) {
-        embedded_asset!(app, "plane_cut.wgsl");
-        embedded_asset!(app, "double_plane_cut.wgsl");
-        app.add_plugins(MaterialPlugin::<PlaneCutMaterial>::default());
-        app.add_plugins(nplane::plugin);
-    }
+pub(crate) fn plugin(app: &mut App) {
+    embedded_asset!(app, "nplane_cut.wgsl");
+    app.add_plugins(MaterialPlugin::<NPlaneCutMaterial>::default());
 }
 
-/// Define what space to test the plane cut in: world space (default) or screen space.
-///
-/// TODO: Consider adding object/model space as an option.
-#[derive(Default, Reflect, Debug, Clone)]
-pub enum Space {
-    /// Run plane cut in world space (default).
-    #[default]
-    World,
-    /// Run plane cut in screen space. This turns the plane into more of a line cut.
-    Screen,
-    //Model
-}
+/// Type alias for two plane cut material.
+pub type NPlaneCutMaterial = ExtendedMaterial<StandardMaterial, NPlaneCutExt>;
 
 /// The plane cut extension.
 #[derive(Asset, AsBindGroup, Reflect, Debug, Clone)]
-#[uniform(100, PlaneCutExtUniform)]
-pub struct PlaneCutExt {
+#[uniform(101, NPlaneCutExtUniform)]
+pub struct NPlaneCutExt {
     /// The plane is defined with a normal vector _n_ and displacment scalar
     /// _w_, represented with a vector _(nx, ny, nz, w)_. Its equation is _n .
     /// position = w_. The portion that is cut is _n . position < w_.
-    pub plane: Vec4,
-    /// Define the color of the cut.
-    pub color: Color,
+    ///
+    /// Each vector has an associated color of its cut.
+    ///
+    /// Respects a maximum of `PLANE_MAX`.
+    pub planes_and_colors: Vec<(Vec4, Color)>,
     /// Define the space the plane is tested in.
     pub space: Space,
     /// Is the cut shaded or unlit? Shaded is the default. Note: using the
@@ -71,11 +50,10 @@ pub struct PlaneCutExt {
     pub shaded: bool,
 }
 
-impl Default for PlaneCutExt {
+impl Default for NPlaneCutExt {
     fn default() -> Self {
         Self {
-            plane: Vec4::new(1.0, 0.0, 0.0, 0.0),
-            color: Color::BLACK,
+            planes_and_colors: vec![(Vec4::new(1.0, 0.0, 0.0, 0.0), Color::BLACK)],
             space: Space::default(),
             shaded: true,
         }
@@ -84,14 +62,15 @@ impl Default for PlaneCutExt {
 
 /// The GPU representation of the uniform data of a [`PlaneCutExt`].
 #[derive(Clone, Default, ShaderType)]
-struct PlaneCutExtUniform {
-    plane: Vec4,
-    color: Vec4,
+struct NPlaneCutExtUniform {
+    planes: [Vec4; PLANE_MAX],
+    colors: [Vec4; PLANE_MAX],
     flags: u32,
+    count: u32,
 }
 
-impl AsBindGroupShaderType<PlaneCutExtUniform> for PlaneCutExt {
-    fn as_bind_group_shader_type(&self, _images: &RenderAssets<GpuImage>) -> PlaneCutExtUniform {
+impl AsBindGroupShaderType<NPlaneCutExtUniform> for NPlaneCutExt {
+    fn as_bind_group_shader_type(&self, _images: &RenderAssets<GpuImage>) -> NPlaneCutExtUniform {
         let mut flags = 0;
         if matches!(self.space, Space::Screen) {
             flags |= 1;
@@ -99,21 +78,28 @@ impl AsBindGroupShaderType<PlaneCutExtUniform> for PlaneCutExt {
         if self.shaded {
             flags |= 4;
         }
-        PlaneCutExtUniform {
-            plane: self.plane,
-            color: LinearRgba::from(self.color).to_f32_array().into(),
+        let mut planes = [Vec4::ZERO; PLANE_MAX];
+        let mut colors = [Vec4::ZERO; PLANE_MAX];
+        for (i, (v, c)) in self.planes_and_colors.iter().enumerate() {
+            planes[i] = *v;
+            colors[i] = LinearRgba::from(*c).to_f32_array().into();
+        }
+        NPlaneCutExtUniform {
+            planes,
+            colors,
             flags,
+            count: self.planes_and_colors.len() as u32,
         }
     }
 }
 
-impl MaterialExtension for PlaneCutExt {
+impl MaterialExtension for NPlaneCutExt {
     fn fragment_shader() -> ShaderRef {
-        "embedded://bevy_plane_cut/plane_cut.wgsl".into()
+        "embedded://bevy_plane_cut/nplane_cut.wgsl".into()
     }
 
     fn deferred_fragment_shader() -> ShaderRef {
-        "embedded://bevy_plane_cut/plane_cut.wgsl".into()
+        "embedded://bevy_plane_cut/nplane_cut.wgsl".into()
     }
 
     fn specialize(
