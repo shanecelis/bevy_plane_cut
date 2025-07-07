@@ -35,7 +35,7 @@ fn main() {
 use bevy::{
     prelude::*,
     color::palettes::basic,
-    pbr::ExtendedMaterial,
+    pbr::{ExtendedMaterial, OpaqueRendererMethod},
 };
 use bevy_plane_cut::*;
 
@@ -44,11 +44,14 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<PlaneCutMaterial>>) {
 
-    commands.spawn(MaterialMeshBundle {
-        mesh: meshes.add(Sphere::new(1.0)),
-        material: materials.add(ExtendedMaterial {
+    // sphere
+    commands.spawn((
+        Mesh3d(meshes.add(Sphere::new(1.0))),
+        MeshMaterial3d(materials.add(ExtendedMaterial {
             base: StandardMaterial {
                 base_color: basic::RED.into(),
+                // Let's use the forward renderer.
+                opaque_render_method: OpaqueRendererMethod::Forward,
                 ..default()
             },
             extension: PlaneCutExt {
@@ -57,9 +60,9 @@ fn setup(
                 shaded: true,
                 space: Space::World,
             },
-        }),
-        ..default()
-    });
+        })),
+        Transform::from_xyz(0.0, 0.5, 0.0),
+    ));
 }
 ```
 
