@@ -68,20 +68,69 @@ fn fragment(
         position = in.world_position.xyz;
     }
 
+    var back_discard = false;
+    var back_hits = 0;
+    var front_hits = 0;
     let view_ray = normalize(in.world_position.xyz - view.world_position);
     for (var i: u32 = 0u; i < plane_cut_ext.count; i++) {
-        if dot(position, plane_cut_ext.plane[i].xyz) < plane_cut_ext.plane[i].w {
-            // if is_front {
+    // for (var i: u32 = 1u; i < plane_cut_ext.count; i++) {
+    // for (var i: u32 = 0u; i < 1; i++) {
+        let dist = dot(position, plane_cut_ext.plane[i].xyz) - plane_cut_ext.plane[i].w;
+        if dist < 0 {
+            if is_front {
                 discard;
-            // }
+            } else {
+                back_discard = true;
+            }
+        }
+        let t = intersect_plane_line(plane_cut_ext.plane[i], view_ray, view.world_position);
+        if t != t || t < 0.0 {
+            // t is NaN, no hit.
+            continue;
         }
         // Make sure the view ray and the plane are anti-collinear
         if dot(view_ray, plane_cut_ext.plane[i].xyz) > 0 {
-            let t = intersect_plane_line(plane_cut_ext.plane[i], view_ray, view.world_position);
             if t > t_max {
                 plane_index = i32(i);
                 t_max = t;
             }
+            front_hits++;
+        } else {
+            // We're seeing the "back" of the plane.
+            back_hits++;
+        }
+    }
+    // if back_discard && (!back_hit || !front_hit) {
+    // if back_discard && (back_hits + front_hits) == 0 {
+    // if back_discard && (back_hits == 0 || front_hits == 0) {
+    if back_discard {
+        var hits = 0;
+        var t_front = -3e10;
+        var t_back = 3e10;
+        // var t_back = 0.0;
+        for (var i: u32 = 0u; i < plane_cut_ext.count; i++) {
+        // for (var i: u32 = 0u; i < 1; i++) {
+        // for (var i: u32 = 1u; i < plane_cut_ext.count; i++) {
+            let t = intersect_plane_line(plane_cut_ext.plane[i], -view_ray, position);
+            if t != t || t < 0.0 {
+                continue;
+            }
+            hits++;
+            if dot(view_ray, plane_cut_ext.plane[i].xyz) > 0 {
+                if t > t_front {
+                    t_front = t;
+                }
+            } else {
+                if t < t_back {
+                    t_back = t;
+                }
+            }
+        }
+        if hits == 0 || t_front < t_back {
+        // if hits == 0 || t_front == 0.0 {
+        // if hits == 0 || t_back < 3e10 {
+        // if t_front > t_back {
+            discard;
         }
     }
 

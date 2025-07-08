@@ -63,7 +63,7 @@ fn setup(
                 (Vec4::new(0.0, 1.0, 0.0, 0.2),  // Cut from the top, different offset
                  Color::linear_rgb(0.0, 0.0, 1.0))], // Blue color for second cut
             space: Space::World,
-            shaded: false, // Make it unlit so it's more visible
+            shaded: true, // Make it unlit so it's more visible
         },
     });
     commands.spawn((
